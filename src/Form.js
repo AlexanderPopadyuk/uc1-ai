@@ -6,6 +6,18 @@ function filterCountries(searchTerm, countries) {
     country.name.common.toLowerCase().includes(searchTerm.toLowerCase())
   );
 }
+function filterCountriesByPopulation(maxPopulationInMillions, countries) {
+  const maxPopulation = maxPopulationInMillions ? maxPopulationInMillions * 1_000_000 : Infinity;
+  return countries.filter(country =>
+    country.population < maxPopulation
+  );
+}
+function combinedFilter(searchTerm, maxPopulationInMillions, countries) {
+  return filterCountriesByPopulation(
+    maxPopulationInMillions,
+    filterCountries(searchTerm, countries)
+  );
+}
 
 export const Form = () => {
   const [formData, setFormData] = useState({
@@ -28,16 +40,22 @@ export const Form = () => {
       });
   }, []);
 
+  useEffect(() => {
+    const result = combinedFilter(
+      formData.name,
+      formData.population ? parseFloat(formData.population) : undefined,
+      countries
+    );
+
+    setFilteredCountries(result);
+  }, [formData, countries]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prevState => ({
       ...prevState,
       [name]: value
     }));
-    if (name === 'name') {
-      const result = filterCountries(value, countries);
-      setFilteredCountries(result);
-    }
   };
 
   const handleSubmit = (e) => {
