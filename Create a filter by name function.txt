@@ -1,0 +1,100 @@
+User
+Create a function that accepts a string as a parameter and can filter data that was received from previous URL by country 'name/common' . Function will accept string that is entered into input on the form.
+ChatGPT
+Of course! I can help you with that. Here's a function called filterCountries that will accept a string and filter countries based on the name/common field:
+
+javascript
+Copy code
+function filterCountries(searchTerm, countries) {
+  return countries.filter(country =>
+    country.name.common.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+}
+This function takes a searchTerm (which is the string you're using to filter) and an array of countries (which is the data you fetched from the URL). It returns an array of countries that match the searchTerm.
+
+Now, you can integrate this function within the SimpleForm component:
+
+javascript
+Copy code
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
+function SimpleForm() {
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    age: '',
+    countrySearch: ''
+  });
+
+  const [countries, setCountries] = useState([]);
+  const [filteredCountries, setFilteredCountries] = useState([]);
+
+  useEffect(() => {
+    axios.get('https://restcountries.com/v3.1/all')
+      .then(response => {
+        setCountries(response.data);
+      })
+      .catch(error => {
+        console.error("Error fetching data:", error);
+      });
+  }, []);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    setFormData(prevState => ({
+      ...prevState,
+      [name]: value
+    }));
+
+    if (name === "countrySearch") {
+      const result = filterCountries(value, countries);
+      setFilteredCountries(result);
+    }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log('Form data submitted:', formData);
+  };
+
+  return (
+    <div>
+      {/* Displaying filtered countries for demonstration purposes */}
+      <ul>
+        {filteredCountries.map(country => (
+          <li key={country.cca3}>{country.name.common}</li>
+        ))}
+      </ul>
+
+      <form onSubmit={handleSubmit}>
+        {/* ... rest of your form code ... */}
+
+        <div>
+          <label>
+            Country Search:
+            <input
+              type="text"
+              name="countrySearch"
+              value={formData.countrySearch}
+              onChange={handleChange}
+            />
+          </label>
+        </div>
+
+        <button type="submit">Submit</button>
+      </form>
+    </div>
+  );
+}
+
+function filterCountries(searchTerm, countries) {
+  return countries.filter(country =>
+    country.name.common.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+}
+
+export default SimpleForm;
+In the code above, as the user types into the countrySearch input field, the list of filtered countries will update in real-time above the form.

@@ -1,6 +1,12 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 
+function filterCountries(searchTerm, countries) {
+  return countries.filter(country =>
+    country.name.common.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+}
+
 export const Form = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -9,6 +15,7 @@ export const Form = () => {
     limit: ''
   });
   const [countries, setCountries] = useState([]);
+  const [filteredCountries, setFilteredCountries] = useState([]);
 
   useEffect(() => {
     // Fetch data from the API using axios
@@ -27,6 +34,10 @@ export const Form = () => {
       ...prevState,
       [name]: value
     }));
+    if (name === 'name') {
+      const result = filterCountries(value, countries);
+      setFilteredCountries(result);
+    }
   };
 
   const handleSubmit = (e) => {
@@ -35,7 +46,8 @@ export const Form = () => {
     console.log('Form data submitted:', formData);
   };
 
-  console.log(countries);
+  console.log(countries.length);
+  console.log(filteredCountries);
 
   return (
     <div>
