@@ -12,10 +12,24 @@ function filterCountriesByPopulation(maxPopulationInMillions, countries) {
     country.population < maxPopulation
   );
 }
-function combinedFilter(searchTerm, maxPopulationInMillions, countries) {
-  return filterCountriesByPopulation(
-    maxPopulationInMillions,
-    filterCountries(searchTerm, countries)
+function sortCountriesByName(order, countries) {
+  return countries.slice().sort((a, b) => {
+    if (order === "ascend") {
+      return a.name.common.localeCompare(b.name.common);
+    } else if (order === "descend") {
+      return b.name.common.localeCompare(a.name.common);
+    } else {
+      return 0;
+    }
+  });
+}
+function combinedFilter(searchTerm, maxPopulationInMillions, order, countries) {
+  return sortCountriesByName(
+    order,
+    filterCountriesByPopulation(
+      maxPopulationInMillions,
+      filterCountries(searchTerm, countries)
+    )
   );
 }
 
@@ -44,6 +58,7 @@ export const Form = () => {
     const result = combinedFilter(
       formData.name,
       formData.population ? parseFloat(formData.population) : undefined,
+      formData.order,
       countries
     );
 
