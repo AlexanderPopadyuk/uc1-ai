@@ -54,23 +54,12 @@ export const Form = () => {
     axios.get('https://restcountries.com/v3.1/all')
       .then(response => {
         setCountries(response.data);
+        setFilteredCountries(response.data);
       })
       .catch(error => {
         console.error("Error fetching data:", error);
       });
   }, []);
-
-  useEffect(() => {
-    const result = combinedFilter(
-      formData.name,
-      formData.population ? parseFloat(formData.population) : undefined,
-      formData.order,
-      formData.limit,
-      countries
-    );
-
-    setFilteredCountries(result);
-  }, [formData, countries]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -82,15 +71,19 @@ export const Form = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Do something with formData
-    console.log('Form data submitted:', formData);
+    const result = combinedFilter(
+      formData.name,
+      formData.population ? parseFloat(formData.population) : undefined,
+      formData.order,
+      formData.limit,
+      countries
+    );
+
+    setFilteredCountries(result);
   };
 
-  console.log(countries.length);
-  console.log(filteredCountries);
-
   return (
-    <div>
+    <div className="form-container">
       <form onSubmit={handleSubmit}>
         <div>
           <label>
@@ -142,6 +135,14 @@ export const Form = () => {
 
         <button type="submit">Submit</button>
       </form>
+      <div className="list-container">
+        <h2>List of Countries</h2>
+        <ul>
+          {filteredCountries.map(country => (
+            <li key={country.cca3}>{country.name.common}</li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }
