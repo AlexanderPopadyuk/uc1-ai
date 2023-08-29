@@ -1,0 +1,129 @@
+User
+Make unit tests using Jest for the following JavaScript functions:
+export function filterCountries(searchTerm, countries) {
+  return countries.filter(country =>
+    country.name.common.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+}
+export function filterCountriesByPopulation(maxPopulationInMillions, countries) {
+  const maxPopulation = maxPopulationInMillions ? maxPopulationInMillions * 1_000_000 : Infinity;
+  return countries.filter(country =>
+    country.population < maxPopulation
+  );
+}
+export function sortCountriesByName(order, countries) {
+  return countries.slice().sort((a, b) => {
+    if (order === "ascend") {
+      return a.name.common.localeCompare(b.name.common);
+    } else if (order === "descend") {
+      return b.name.common.localeCompare(a.name.common);
+    } else {
+      return 0;
+    }
+  });
+}
+export function limitCountries(limit, countries) {
+  return limit ? countries.slice(0, limit) : countries;
+}
+export function combinedFilter(searchTerm, maxPopulationInMillions, order, limit, countries) {
+  return limitCountries(
+    limit,
+    sortCountriesByName(
+      order,
+      filterCountriesByPopulation(
+        maxPopulationInMillions,
+        filterCountries(searchTerm, countries)
+      )
+    )
+  );
+}
+ChatGPT
+Alright, let's create unit tests for the provided functions using Jest.
+
+First, assume your functions are saved in a file named countriesUtils.js.
+
+For our test cases, we'll create a file named countriesUtils.test.js.
+
+Here's how you can structure the tests:
+
+javascript
+Copy code
+import {
+  filterCountries,
+  filterCountriesByPopulation,
+  sortCountriesByName,
+  limitCountries,
+  combinedFilter
+} from './countriesUtils';
+
+const mockCountries = [
+  { name: { common: 'Aland' }, population: 30000 },
+  { name: { common: 'Zimbabwe' }, population: 15000000 },
+  { name: { common: 'India' }, population: 1300000000 },
+  { name: { common: 'Canada' }, population: 37000000 },
+];
+
+describe('countriesUtils', () => {
+
+  test('filterCountries', () => {
+    const result = filterCountries('can', mockCountries);
+    expect(result).toEqual([{ name: { common: 'Canada' }, population: 37000000 }]);
+  });
+
+  test('filterCountriesByPopulation', () => {
+    const result = filterCountriesByPopulation(1, mockCountries);
+    expect(result).toEqual([{ name: { common: 'Aland' }, population: 30000 }]);
+  });
+
+  test('sortCountriesByName ascend', () => {
+    const result = sortCountriesByName('ascend', mockCountries);
+    expect(result[0].name.common).toBe('Aland');
+    expect(result[result.length - 1].name.common).toBe('Zimbabwe');
+  });
+
+  test('sortCountriesByName descend', () => {
+    const result = sortCountriesByName('descend', mockCountries);
+    expect(result[0].name.common).toBe('Zimbabwe');
+    expect(result[result.length - 1].name.common).toBe('Aland');
+  });
+
+  test('limitCountries', () => {
+    const result = limitCountries(2, mockCountries);
+    expect(result.length).toBe(2);
+  });
+
+  test('combinedFilter', () => {
+    const result = combinedFilter('ca', 1000, 'ascend', 3, mockCountries);
+    expect(result).toEqual([
+      { name: { common: 'Canada' }, population: 37000000 }
+    ]);
+  });
+
+});
+Here's a breakdown of the tests:
+
+filterCountries: This test checks if the filter function correctly retrieves countries that match a given search term.
+
+filterCountriesByPopulation: This test checks if countries with a population below a certain number are correctly retrieved.
+
+sortCountriesByName: There are two tests here. One checks the ascending order and the other the descending order.
+
+limitCountries: This test ensures that only the specified number of countries are returned.
+
+combinedFilter: A more complex test that combines all the previous functionalities.
+
+Remember, for these tests to run, you should have jest and other required dependencies installed in your project. If you haven't set up Jest with your project, you can do so by running:
+
+css
+Copy code
+npm install --save-dev jest
+Then, to run the tests, you can use:
+
+Copy code
+npx jest countriesUtils.test.js
+Or, if you've set up Jest in your scripts section of package.json, you can simply run:
+
+bash
+Copy code
+npm test
+These tests will ensure that your utility functions for managing countries work as expected.
