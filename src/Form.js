@@ -23,12 +23,18 @@ function sortCountriesByName(order, countries) {
     }
   });
 }
-function combinedFilter(searchTerm, maxPopulationInMillions, order, countries) {
-  return sortCountriesByName(
-    order,
-    filterCountriesByPopulation(
-      maxPopulationInMillions,
-      filterCountries(searchTerm, countries)
+function limitCountries(limit, countries) {
+  return limit ? countries.slice(0, limit) : countries;
+}
+function combinedFilter(searchTerm, maxPopulationInMillions, order, limit, countries) {
+  return limitCountries(
+    limit,
+    sortCountriesByName(
+      order,
+      filterCountriesByPopulation(
+        maxPopulationInMillions,
+        filterCountries(searchTerm, countries)
+      )
     )
   );
 }
@@ -59,6 +65,7 @@ export const Form = () => {
       formData.name,
       formData.population ? parseFloat(formData.population) : undefined,
       formData.order,
+      formData.limit,
       countries
     );
 
